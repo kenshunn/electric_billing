@@ -1,5 +1,5 @@
 <?php
-// app/Controllers/Auth.php hehegig
+// app/Controllers/Auth.php
 namespace App\Controllers;
 
 use App\Models\UserModel;
@@ -7,16 +7,16 @@ use App\Models\AuditModel;
 
 class Auth extends BaseController
 {
-    public function index()
+    public function index() 
     {
         // Already logged in → redirect to dashboard
         if (session()->get('logged_in')) {
-            return redirect()->to('/' . session()->get('role') . '/dashboard');
+            return redirect()->to('/' . session()->get('role') . '/dashboard'); // if the user is logged it, retrieves the role to redirect to the corresponding dashboard
         }
-        return view('auth/login');
+        return view('auth/login'); 
     }
 
-    public function login()
+    public function login() //basic login
     {
         $rules = [
             'username' => 'required|min_length[3]',
