@@ -1,5 +1,5 @@
 <?php
-// app/Controllers/Auth.php
+// app/Controllers/Auth.php hehegi
 namespace App\Controllers;
 
 use App\Models\UserModel;
