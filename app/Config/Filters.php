@@ -1,6 +1,5 @@
 <?php
 // app/Config/Filters.php
-// ADD this to your existing Filters.php file
 
 namespace Config;
 
@@ -19,7 +18,7 @@ class Filters extends BaseConfig
         'honeypot'      => Honeypot::class,
         'invalidchars'  => InvalidChars::class,
         'secureheaders' => SecureHeaders::class,
-        'auth'          => \App\Filters\AuthFilter::class,   // <-- ADD THIS
+        'auth'          => \App\Filters\AuthFilter::class,  
     ];
 
     public array $globals = [

@@ -9,9 +9,9 @@ class Auth extends BaseController
 {
     public function index() 
     {
-        // Already logged in → redirect to dashboard
+        // Already logged in redirect to dashboard
         if (session()->get('logged_in')) {
-            return redirect()->to('/' . session()->get('role') . '/dashboard'); // if the user is logged it, retrieves the role to redirect to the corresponding dashboard
+            return redirect()->to('/' . session()->get('role') . '/dashboard'); // if the user is logged in, retrieves the role to redirect to the corresponding dashboard
         }
         return view('auth/login'); 
     }

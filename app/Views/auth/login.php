@@ -72,8 +72,8 @@
              alt="Logo"
              style="width:47px; height:47px; border-radius:10px; object-fit:cover;">
             </div>
-            <h4 class="fw-800 mb-0" style="color:#0f1c36;">Electric Bill <span style="color:#1a56db;">Services</span></h4>
-            <p class="text-muted small mb-0">Billing Management System</p>
+            <h4 class="fw-800 mb-0" style="color:#0f1c36;">PAY4 <span style="color:#1a56db;">ELECTRICITY</span></h4>
+            <p class="text-muted small mb-0">Electricity Billing</p>
         </div>
 
         <?php if (session()->getFlashdata('error')): ?>
@@ -121,12 +121,6 @@
                 <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
             </button>
         </form>
-
-        <div class="demo-box mt-4">
-            <div class="fw-700 mb-1" style="color:#1e40af;"><i class="bi bi-info-circle me-1"></i>Demo Accounts</div>
-            <div><b>Admin:</b> admin / Admin@1234</div>
-            <div><b>User:</b>&nbsp; jdoe &nbsp;/ User@1234</div>
-        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

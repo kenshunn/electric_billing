@@ -24,7 +24,7 @@ $routes->group('admin', ['filter' => 'auth:admin'], function($routes) { //groupe
     $routes->get('users',               'Admin::users'); // user page
     $routes->post('users/store',        'Admin::storeUser'); // when creating a user
     $routes->post('users/update',       'Admin::updateUser'); // updating user details
-    $routes->post('users/delete',       'Admin::deleteUser'); // deleting user
+    $routes->post('users/archive',       'Admin::deleteUser'); // deleting user
     $routes->get('users/get/(:num)',    'Admin::getUser/$1');
     $routes->get('audit',               'Admin::audit'); // for audit trail page
     $routes->get('audit/data',          'Admin::auditData'); //trail records

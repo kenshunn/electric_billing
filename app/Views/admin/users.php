@@ -45,10 +45,11 @@ $this->section('content');
                                     data-id="<?= $u['id'] ?>">
                                 <i class="bi bi-pencil-fill"></i>
                             </button>
-                            <button class="btn btn-sm btn-outline-danger btn-delete"
+                            <button class="btn btn-sm <?= $u['is_active'] ? 'btn-outline-danger' : 'btn-outline-success' ?> btn-archive"
                                     data-id="<?= $u['id'] ?>"
-                                    data-name="<?= esc($u['full_name']) ?>">
-                                <i class="bi bi-trash-fill"></i>
+                                    data-name="<?= esc($u['full_name']) ?>"
+                                    data-active="<?= $u['is_active'] ?>">
+                                <i class="bi <?= $u['is_active'] ? 'bi-archive-fill' : 'bi-person-check-fill' ?>"></i>
                             </button>
                         </td>
                     </tr>
@@ -117,7 +118,7 @@ $this->section('content');
 </div>
 
 <!-- ── Delete Confirm Modal ──────────────────────────────── -->
-<div class="modal fade" id="deleteModal" tabindex="-1">
+<!-- <div class="modal fade" id="deleteModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content" style="border-radius:16px;">
             <div class="modal-body text-center py-4">
@@ -131,6 +132,26 @@ $this->section('content');
             </div>
         </div>
     </div>
+</div> -->
+
+<div class="modal fade" id="archiveModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content" style="border-radius:16px;">
+            <div class="modal-body text-center py-4">
+                <div class="mb-3" style="font-size:2.5rem;" id="archiveIcon">📦</div>
+                <h6 class="fw-700" id="archiveTitle">Archive User?</h6>
+                <p class="text-muted small mb-0" id="archiveMessage">
+                    Are you sure you want to archive
+                    <strong id="archiveName"></strong>?
+                    They can be reactivated later.
+                </p>
+            </div>
+            <div class="modal-footer border-0 pt-0 justify-content-center">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmArchive">Confirm</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <?php $this->endSection(); ?>
@@ -139,7 +160,7 @@ $this->section('content');
 <script>
 $(function () {
     const BASE = '<?= base_url() ?>';
-    let deleteId = null;
+    let archiveId = null;
 
     // Init DataTable
     $('#usersTable').DataTable({ order: [] });
@@ -155,7 +176,7 @@ $(function () {
         $('#formErrors').addClass('d-none').html('');
     });
 
-    // ── Open Edit Modal ───────────────────────────────────
+    // // ── Open Edit Modal ───────────────────────────────────
     $(document).on('click', '.btn-edit', function () {
         const id = $(this).data('id');
         $.get(BASE + 'admin/users/get/' + id, function (res) {
@@ -195,18 +216,52 @@ $(function () {
         });
     });
 
+
     // ── Delete ────────────────────────────────────────────
-    $(document).on('click', '.btn-delete', function () {
-        deleteId = $(this).data('id');
-        $('#deleteName').text($(this).data('name'));
-        new bootstrap.Modal('#deleteModal').show();
+    // $(document).on('click', '.btn-delete', function () {
+    //     deleteId = $(this).data('id');
+    //     $('#deleteName').text($(this).data('name'));
+    //     new bootstrap.Modal('#deleteModal').show();
+    // });
+
+    // $('#confirmDelete').on('click', function () {
+    //     $.post(BASE + 'admin/users/delete', { id: deleteId }, function (res) {
+    //         bootstrap.Modal.getInstance('#deleteModal').hide();
+    //         if (res.success) {
+    //             showToast(res.message, 'success');
+    //             setTimeout(() => location.reload(), 900);
+    //         } else {
+    //             showToast(res.message, 'danger');
+    //         }
+    //     });
+    // });
+
+    // ── Archive / Reactivate ──────────────────────────────
+    $(document).on('click', '.btn-archive', function() {
+        archiveId = $(this).data('id');
+        const name = $(this).data('name');
+        const isActive = $(this).data('active') == 1;
+
+        if (isActive) {
+            $('#archiveIcon').text('📦');
+            $('#archiveTitle').text('Archive User?');
+            $('#archiveMessage').html(`Are you sure you want to archive <strong>${name}</strong>? They can be reactivated later.`);
+            $('#confirmArchive').removeClass('btn-success').addClass('btn-danger').text('Archive');
+        } else {
+            $('#archiveIcon').text('✅');
+            $('#archiveTitle').text('Reactivate User?');
+            $('#archiveMessage').html(`Are you sure you want to reactivate <strong>${name}</strong>?`);
+            $('#confirmArchive').removeClass('btn-danger').addClass('btn-success').text('Reactivate');
+        }
+
+        bootstrap.Modal.getOrCreateInstance('#archiveModal').show();
     });
 
-    $('#confirmDelete').on('click', function () {
-        $.post(BASE + 'admin/users/delete', { id: deleteId }, function (res) {
-            bootstrap.Modal.getInstance('#deleteModal').hide();
+    $('#confirmArchive').on('click', function () {
+        $.post(BASE + 'admin/users/archive', { id: archiveId }, function (res) {
+            bootstrap.Modal.getOrCreateInstance('#archiveModal').hide();
             if (res.success) {
-                showToast(res.message, 'success');
+                showToast(res.message, res.action === 'archived' ? 'warning' : 'success');
                 setTimeout(() => location.reload(), 900);
             } else {
                 showToast(res.message, 'danger');

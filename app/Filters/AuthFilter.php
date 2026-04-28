@@ -16,6 +16,16 @@ class AuthFilter implements FilterInterface
             return redirect()->to('/login')->with('error', 'Please login to continue.'); 
         }
 
+        // archived checker
+        $userModel = new \App\Models\UserModel();
+        $user      = $userModel->find(session()->get('user_id'));
+
+        if (!$user || $user['is_active'] == 0) {
+            session()->destroy();
+            return redirect()->to('/login')
+                            ->with('error', 'Your account has been archived. Contact your administrator.');
+        }
+
         // Role check
         if (!empty($arguments)) { //if the user is logged in, checks for its role to redirect to the corresponding dashboard
             $requiredRole = $arguments[0];

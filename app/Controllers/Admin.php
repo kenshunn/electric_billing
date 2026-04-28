@@ -27,11 +27,11 @@ class Admin extends BaseController
         'total_users'  => $this->userModel->where('role', 'user')->countAllResults(),
         'total_admins' => $this->userModel->where('role', 'admin')->countAllResults(),
         'total_bills'  => count($billingModel->getAll()),
-        'total_audits' => $this->auditModel->countAll(),   // ← added
+        'total_audits' => $this->auditModel->countAll(),   // added
         'recent_audits'=> array_slice($this->auditModel->getAll(), 0, 5),
     ];
 
-    return view('dashboard', $data);   // ← changed path
+    return view('dashboard', $data);   // changed path
 }
 
     // ── User Management ──────────────────────────────────
@@ -136,32 +136,88 @@ class Admin extends BaseController
         return $this->response->setJSON(['success' => true, 'message' => 'User updated successfully.']);
     }
 
+    // public function deleteUser()
+    // {
+    //     $id   = $this->request->getPost('id');
+    //     $user = $this->userModel->find($id);
+
+    //     if (!$user) {
+    //         return $this->response->setJSON(['success' => false, 'message' => 'User not found.']);
+    //     }
+
+    //     // Prevent self-deletion
+    //     if ($id == session()->get('user_id')) {
+    //         return $this->response->setJSON(['success' => false, 'message' => 'Cannot delete your own account.']);
+    //     }
+
+    //     $this->userModel->delete($id);
+
+    //     $this->auditModel->log(
+    //         session()->get('user_id'),
+    //         'DELETE USER',
+    //         'User Management',
+    //         "Deleted user '{$user['username']}' (ID: {$id})."
+    //     );
+
+    //     return $this->response->setJSON(['success' => true, 'message' => 'User deleted successfully.']);
+    // }
+
     public function deleteUser()
     {
-        $id   = $this->request->getPost('id');
+        $id = $this->request->getPost('id');
         $user = $this->userModel->find($id);
 
         if (!$user) {
-            return $this->response->setJSON(['success' => false, 'message' => 'User not found.']);
+            return $this->response->setJSON([
+                'success'=> false,
+                'message'=> 'User not found.'
+            ]);
         }
 
-        // Prevent self-deletion
         if ($id == session()->get('user_id')) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Cannot delete your own account.']);
+            return $this->request->setJSON([
+                'success'=> false,
+                'message'=> 'Cannot delete your own account.'
+            ]);
         }
 
-        $this->userModel->delete($id);
+        $isArchived = $user['is_active'] == 0;
 
-        $this->auditModel->log(
-            session()->get('user_id'),
-            'DELETE USER',
-            'User Management',
-            "Deleted user '{$user['username']}' (ID: {$id})."
-        );
+        if ($isArchived) {
+            $this->userModel->update($id, ['is_active' => 1]);
 
-        return $this->response->setJSON(['success' => true, 'message' => 'User deleted successfully.']);
+            $this->auditModel->log(
+                session()->get('user_id'),
+                'REACTIVATE USER',
+                'Use Management',
+                "Reactivated user '{$user['username']}'."
+            );
+
+            return $this->response->setJSON([
+                "success"=> true,
+                "message"=> "User '{$user['username']}' has been reactivated",
+                'action' => 'reactivated'
+            ]);
+        } else {
+            // ── ARCHIVE ───────────────────────────────────────
+            $this->userModel->update($id, ['is_active' => 0]);
+
+            $this->auditModel->log(
+                session()->get('user_id'),
+                'ARCHIVE USER',
+                'User Management',
+                "Archived user '{$user['username']}'."
+            );
+
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => "User '{$user['username']}' has been archived.",
+                'action'  => 'archived'
+            ]);
+        }
     }
 
+    
     // ── Audit Trails ─────────────────────────────────────
     public function audit()
     {

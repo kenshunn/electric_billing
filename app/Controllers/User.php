@@ -33,7 +33,7 @@ class User extends BaseController
         'recent_bills' => array_slice($bills, 0, 5),
     ];
 
-    return view('dashboard', $data);   // ← changed path
+    return view('dashboard', $data);   // changed path
     }
 
     // ── Billing Computation ──────────────────────────────
